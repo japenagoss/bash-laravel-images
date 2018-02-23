@@ -81,7 +81,7 @@ do
             then
                 # Optimize final image
                 cd /photomanager/$user/optimized/$year/$month/$day/$hour/
-                sudo convert $lastFileName -quality 50 -resize 1400 -strip -set comment "photomanager" $lastFileName
+                sudo convert $lastFileName -quality 70 -resize 3000 -strip -set comment "photomanager" $lastFileName
 
                 # Know if the file was optimized
                 comment=$(identify -verbose $lastFileName | grep 'comment: photomanager')
@@ -92,7 +92,8 @@ do
                 if [ "$comment" == "photomanager" ]; then
 
                     cd  /var/www/html/photomanager
-                    artisan=$(php artisan image:save $user "/photomanager/$user/optimized/$year/$month/$day/$hour/$lastFileName" 2>&1)
+                    finalDate="$year-$month-$day $hour:$minute:$second"
+                    artisan=$(php artisan image:save $user "/photomanager/$user/optimized/$year/$month/$day/$hour/$lastFileName" "$finalDate" 2>&1)
 
                     if [ "$artisan" == "1" ]; then
                         file=$(echo $file | rev | cut -d "/" -f1 | rev)
