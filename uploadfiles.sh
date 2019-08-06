@@ -7,27 +7,26 @@ do
     # If the file exists it have to continue
     if [ -f  $file ]
     then
-        # Get date data
-        date=$(identify -verbose $file | grep "exif:DateTimeOriginal")
-        origDate="exif:DateTimeOriginal"
-        if [ "${date/$origDate}" = "$date" ]
-        then
-            echo "no tiene fecha"
-        else
-            year=$(echo "$date" | cut -d ":" -f3)
-            year=$(echo "${year/ /}")
-            month=$(echo "$date" | cut -d ":" -f4)
-            dayHour=$(echo "$date" | cut -d ":" -f5)
-            day=$(echo "$dayHour" | cut -d " " -f1)
-            hour=$(echo "$dayHour" | cut -d " " -f2)
-            minute=$(echo "$date" | cut -d ":" -f6)
-            second=$(echo "$date" | cut -d ":" -f7)
+        # Get Name
+        name=$(identify -verbose $file | grep "Image:")
+        name=$(echo "$name" | cut -d " " -f2)
+        name=$(echo $file | rev | cut -d "/" -f1 | rev)
 
-            # Final file name
-            extension="${file##*.}"
-            timestamp=$(date "+%s" -d "$month/$day/$year $hour:$minute:$second")
-            lastFileName="$timestamp.$extension"
+        # Get Date
+        date=$(echo "$name" | cut -d "." -f1)
+        year=$(echo ${date:0:4})
+        month=$(echo ${date:4:2})
+        day=$(echo ${date:6:2})
+        hour=$(echo ${date:8:2})
+        minute=$(echo ${date:10:2})
+        second=$(echo ${date:12:2})
 
+        timestamp=$(date "+%s" -d "$month/$day/$year $hour:$minute:$second" 2>&1)
+
+        #echo "$year-$month-$day $hour:$minute:$second"
+
+        re='^[0-9]+$'
+        if [[ $timestamp =~ $re ]] ; then
             # Create dir to save the new file
             if [ ! -d "/photomanager" ]
             then
@@ -74,37 +73,34 @@ do
             if [ -d "/photomanager/$user/optimized/$year/$month/$day/$hour" ]
             then
                 # copye image to new dir
-                cp $file /photomanager/$user/optimized/$year/$month/$day/$hour/$lastFileName
+                cp $file /photomanager/$user/optimized/$year/$month/$day/$hour/$name
             fi
 
-            if [ -f "/photomanager/$user/optimized/$year/$month/$day/$hour/$lastFileName" ]
+            if [ -f "/photomanager/$user/optimized/$year/$month/$day/$hour/$name" ]
             then
                 # Optimize final image
                 cd /photomanager/$user/optimized/$year/$month/$day/$hour/
-                sudo convert $lastFileName -quality 70 -resize 3000 -strip -set comment "photomanager" $lastFileName
+                sudo convert $name -quality 70 -resize 3000 -strip -set comment "photomanager" $name
 
                 # Know if the file was optimized
-                comment=$(identify -verbose $lastFileName | grep 'comment: photomanager')
+                comment=$(identify -verbose $name | grep 'comment: photomanager')
                 comment=$(echo "$comment" | cut -d ":" -f2)
                 comment=$(echo "${comment/ /}")
 
-                # upload file to Amazon S3
                 if [ "$comment" == "photomanager" ]; then
-
                     cd  /var/www/html/photomanager
+                    #file=$(echo $file | rev | cut -d "/" -f1 | rev)
                     finalDate="$year-$month-$day $hour:$minute:$second"
-                    artisan=$(php artisan image:save $user "/photomanager/$user/optimized/$year/$month/$day/$hour/$lastFileName" "$finalDate" 2>&1)
+                    artisan=$(php artisan image:save $user "/photomanager/$user/optimized/$year/$month/$day/$hour/$name" "/photomanager/originals/$user/$name" "$finalDate" 2>&1)
 
                     if [ "$artisan" == "1" ]; then
-                        file=$(echo $file | rev | cut -d "/" -f1 | rev)
-                        sed -i "/$file/d" /photomanager/photomanager.log
-
+                        sed -i "/$name/d" /photomanager/photomanager.log
                         if [ ! -d "/photomanager/originals/$user" ]; then
                             cd /photomanager/originals
                             mkdir $user
-                            sudo mv /home/$user/$file /photomanager/originals/$user/$file
+                            sudo mv /home/$user/$name /photomanager/originals/$user/$name
                         else
-                            sudo mv /home/$user/$file /photomanager/originals/$user/$file
+                            sudo mv /home/$user/$name /photomanager/originals/$user/$name
                         fi
                     fi
                 fi
