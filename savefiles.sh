@@ -177,7 +177,7 @@ do
 
                     image_id=""
 
-                    sleep 30
+                    sleep 90
 
                     # process to optimize big images (desktop)
                     if [ -f "/photomanager/$user/optimized/$year/$month/$day/$hour/$name" ]
