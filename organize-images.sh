@@ -36,6 +36,55 @@ do
 
                 re='^[0-9]+$'
                 if [[ $timestamp =~ $re ]] ; then
+                    # Create dir to save the new file
+                    if [ ! -d "/photomanager" ]
+                    then
+                        cd /home
+                        mkdir photomanager
+                    fi
+
+                    if [ ! -d "/photomanager/$user" ]
+                    then
+                        cd /photomanager
+                        mkdir $user
+                    fi
+
+                    if [ ! -d "/photomanager/$user/optimized" ]
+                    then
+                        cd /photomanager/$user
+                        mkdir optimized
+                    fi
+
+                    if [ ! -d "/photomanager/$user/optimized/$year" ]
+                    then
+                        cd /photomanager/$user/optimized
+                        mkdir $year
+                    fi
+
+                    if [ ! -d "/photomanager/$user/optimized/$year/$month" ]
+                    then
+                        cd /photomanager/$user/optimized/$year
+                        mkdir $month
+                    fi
+
+                   if [ ! -d "/photomanager/$user/optimized/$year/$month/$day" ]
+                   then
+                        cd /photomanager/$user/optimized/$year/$month
+                        mkdir $day
+                   fi
+
+                    if [ ! -d "/photomanager/$user/optimized/$year/$month/$day/$hour" ]
+                    then
+                        cd /photomanager/$user/optimized/$year/$month/$day
+                        mkdir $hour
+                    fi
+
+                    if [ -d "/photomanager/$user/optimized/$year/$month/$day/$hour" ]
+                    then
+                        # copy image to new dir
+                        cp $file /photomanager/$user/optimized/$year/$month/$day/$hour/$name
+                    fi
+
                      # # Create dir to save the new file (tablet)
                     # # ---------------------------------------------------------------
                     if [ ! -d "/photomanager/tablets" ]
@@ -122,55 +171,6 @@ do
                     then
                         # copy image to new dir
                         cp $file /photomanager/smartphones/$user/$year/$month/$day/$hour/$name
-                    fi
-
-                    # Create dir to save the new file
-                    if [ ! -d "/photomanager" ]
-                    then
-                        cd /home
-                        mkdir photomanager
-                    fi
-
-                    if [ ! -d "/photomanager/$user" ]
-                    then
-                        cd /photomanager
-                        mkdir $user
-                    fi
-
-                    if [ ! -d "/photomanager/$user/optimized" ]
-                    then
-                        cd /photomanager/$user
-                        mkdir optimized
-                    fi
-
-                    if [ ! -d "/photomanager/$user/optimized/$year" ]
-                    then
-                        cd /photomanager/$user/optimized
-                        mkdir $year
-                    fi
-
-                    if [ ! -d "/photomanager/$user/optimized/$year/$month" ]
-                    then
-                        cd /photomanager/$user/optimized/$year
-                        mkdir $month
-                    fi
-
-                   if [ ! -d "/photomanager/$user/optimized/$year/$month/$day" ]
-                   then
-                        cd /photomanager/$user/optimized/$year/$month
-                        mkdir $day
-                   fi
-
-                    if [ ! -d "/photomanager/$user/optimized/$year/$month/$day/$hour" ]
-                    then
-                        cd /photomanager/$user/optimized/$year/$month/$day
-                        mkdir $hour
-                    fi
-
-                    if [ -d "/photomanager/$user/optimized/$year/$month/$day/$hour" ]
-                    then
-                        # copy image to new dir
-                        cp $file /photomanager/$user/optimized/$year/$month/$day/$hour/$name
                     fi
                 fi
             fi

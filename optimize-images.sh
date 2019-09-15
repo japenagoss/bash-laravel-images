@@ -53,7 +53,7 @@ do
 
                     # save image in database
                     image_id=$(php artisan image:save $user "/photomanager/$user/optimized/$year/$month/$day/$hour/$name" "/photomanager/originals/$user/$name" "$finalDate" 2>&1)
-                    tablet=$(php artisan tabletImage:save $image_id "/photomanager/tablets/$user/$year/$month/$day/$hour/$name" 2>&1)
+                    tablet=$(php artisan tabletImage:save $image_id "/photomanager/tablets/$user/$year/$month/$day/$hour/$name" 2>&1)                
                     smartphones=$(php artisan smartphoneImage:save $image_id "/photomanager/smartphones/$user/$year/$month/$day/$hour/$name" 2>&1)
                 fi
 
@@ -65,7 +65,6 @@ do
                 # optimize images for smartphones
                 if [[ $file == *"smartphones"* ]]; then
                     sudo convert $file -quality 70 -resize 768 -strip -set comment "photomanager" $file
-                    cd  /var/www/html/photomanager
                 fi
             fi
         fi
