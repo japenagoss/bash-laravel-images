@@ -1,0 +1,11 @@
+[Service]
+User = root
+Restart = always
+Type = forking
+ExecStart = /home/scripts/optimize-images.sh
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target
+
+
